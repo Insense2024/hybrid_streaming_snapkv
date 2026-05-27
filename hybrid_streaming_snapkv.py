@@ -27,15 +27,7 @@ class HybridKVManager:
         if seq_len <= self.max_cache_tokens:
             return key, value
 
-        # ------------------------------------------------
-        # sink tokens
-        # ------------------------------------------------
-
         sink_idx = list(range(self.sink_tokens))
-
-        # ------------------------------------------------
-        # recent window
-        # ------------------------------------------------
 
         recent_start = max(
             self.sink_tokens,
@@ -43,10 +35,6 @@ class HybridKVManager:
         )
 
         recent_idx = list(range(recent_start, seq_len))
-
-        # ------------------------------------------------
-        # important tokens from SnapKV
-        # ------------------------------------------------
 
         important_idx = []
 
@@ -152,8 +140,13 @@ def apply_hybrid_streaming_snapkv(
                 )
 
                 attn_output = out[0]
-                attentions = out[1]
-                present = out[2]
+
+                if len(out) == 3:
+                    attentions = out[1]
+                    present = out[2]
+                else:
+                    attentions = None
+                    present = out[1]
 
                 if use_cache and present is not None:
 
